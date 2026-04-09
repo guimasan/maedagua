@@ -1,108 +1,113 @@
-# IARA V1 - Arduino Uno
+# IARA V1 — Monitoramento de Qualidade da Água (Arduino Uno)
 
-Projeto simples e fácil de usar.
+Projeto para aquisição de dados de **temperatura** e **TDS/condutividade estimada**, com transmissão serial, painel local e página pública para visualização em tempo real.
 
-## O que ele faz
+## Visão geral
 
-- Lê temperatura com DS18B20 no pino D3
-- Lê TDS no pino A1
-- Mostra status em OLED I2C 128x64 (0x3C)
-- Envia tudo pela USB Serial
+O IARA V1 realiza:
 
-## O que faz no notebook
+- leitura de temperatura com **DS18B20**
+- leitura analógica de **TDS** em `A1`
+- exibição local em **OLED SSD1306 I2C (128x64)**
+- envio contínuo de telemetria via **USB Serial**
 
-O Arduino só manda os dados.
-O seu webapp no notebook pode ler a serial, sincronizar e guardar os logs.
+O repositório inclui firmware, backend de painel e dashboard web para uso local e publicação.
 
-## Arquivos
+## Estrutura do repositório
 
-- `firmware/iara_arduino_uno_v1.ino` → código do Arduino
-- `docs/USO_RAPIDO.md` → passo a passo curto
-- `README.md` → visão geral
+- `firmware/iara_arduino_uno_v1.ino` — firmware do Arduino Uno
+- `_painel_iot_server/` — backend + dashboards locais
+- `docs/index.html` — dashboard público (GitHub Pages)
+- `docs/USO_RAPIDO.md` — guia curto de operação
+- `tools/calibrar_tds.py` — calibração rápida via serial
+- `tools/diagnostico_leituras.py` — diagnóstico comparativo de modos
 
-## Como usar
+## Arquitetura de dados
 
-1. Abra `firmware/iara_arduino_uno_v1.ino`
-2. Envie para o Arduino Uno
-3. Abra o monitor serial em `115200`
-4. Veja as linhas chegando
-5. Conecte seu webapp para ler a serial
+1. O Arduino coleta dados dos sensores.
+2. A telemetria é enviada pela serial (`115200`).
+3. O bridge (`_painel_iot_server/bridge_arduino.py`) converte e publica para a API.
+4. Dashboards consomem API/WS para visualização em tempo real e histórico.
 
-## Modos de diagnóstico de leitura (Serial)
-
-O firmware aceita comandos por Serial para testar interferência da OLED:
-
-- `MODE=0` normal
-- `MODE=1` pausa atualização OLED durante leitura
-- `MODE=2` OLED desligada durante leitura
-- `MODE=3` OLED desligada sempre
-- `MODE=4` leitura alternada de sensores (temp/tds)
-
-Consulta de modo:
-
-- `MODE?` ou `STATUS`
-
-## Calibração TDS (CAL)
-
-O firmware agora publica as variáveis de calibração em cada linha:
-
-- `CAL` (estado da calibração)
-- `CAL_GAIN` (ganho aplicado)
-- `TDS_RAW_PPM` (valor antes da calibração)
-
-Estados de `CAL`:
-
-- `0` idle
-- `1` aguardando referência
-- `2` aplicado e não salvo
-- `3` salvo em EEPROM
-
-Comandos:
-
-- `CAL=ON`
-- `CAL=APPLY:<ppm>` (ex.: `CAL=APPLY:342`)
-- `CAL=SAVE`
-- `CAL=RESET`
-- `CAL=OFF`
-- `CAL?`
-
-Também disponível no payload: `DISP` (0 rotativo, 1 tela única).
-
-### Solução de referência 1413 µS/cm
-
-Para 1413 µS/cm, no padrão 500-scale ($ppm = EC \times 0.5$):
-
-- $1413 \times 0.5 = 706.5\,ppm$
-
-Ou seja, a calibração recomendada é `CAL=APPLY:706.5`.
-
-No webapp refatorado, isso já aparece com preset de 1413 µS/cm e fator selecionável (0.5, 0.64, 0.7).
-
-## Script de comparação automática
-
-Arquivo: `tools/diagnostico_leituras.py`
-
-Ele testa os modos e mostra estatísticas de estabilidade de `TEMP_C` e `TDS_PPM`, indicando um modo recomendado.
-
-## Script de calibração rápida
-
-Arquivo: `tools/calibrar_tds.py`
-
-Exemplo:
-
-- `python3 tools/calibrar_tds.py --port /dev/ttyUSB0 --ref 342 --save`
-
-## Exemplo de linha
+Exemplo de payload serial:
 
 ```text
 DEVICE=iara-uno-0001;SEQ=1;TS_MS=1034;TEMP_C=25.19;TDS_PPM=131;TDS_ADC=287;TDS_V=1.404;TEMP_OK=1;TDS_OK=1;FW=1.0.0
 ```
 
-## Ligações
+## Equipamentos e sensores utilizados
 
-- **DS18B20**: D3, GND, 5V
-- **TDS**: A1, GND, 5V
-- **OLED SSD1306 I2C**: SDA (A4), SCL (A5), GND, 5V
+- **Microcontrolador:** Arduino Uno (ATmega328P)
+- **Temperatura:** DS18B20 (OneWire)
+- **TDS/EC:** módulo TDS analógico compatível com entrada ADC do Uno
+- **Display:** OLED SSD1306 I2C 128x64 (`0x3C`)
+- **Conexão host:** USB serial
+
+## Ligações elétricas (padrão do projeto)
+
+- **DS18B20:** `D3`, `5V`, `GND`
+- **TDS analógico:** `A1`, `5V`, `GND`
+- **OLED SSD1306:** `SDA(A4)`, `SCL(A5)`, `5V`, `GND`
+
+## Medidas, faixas e interpretação
+
+### Temperatura (DS18B20)
+
+- resolução configurável pelo sensor: 9–12 bits
+- precisão típica de referência: aproximadamente $\pm 0.5\,^{\circ}C$ na faixa central de operação (ver datasheet)
+- saída no projeto: `TEMP_C`
+
+### TDS/EC (módulo analógico)
+
+- leitura bruta no ADC de 10 bits do Uno (`0..1023`): `TDS_ADC`
+- tensão estimada: `TDS_V`
+- concentração estimada: `TDS_PPM`
+- valor bruto antes de ganho de calibração: `TDS_RAW_PPM`
+
+> Observação: TDS depende de temperatura, tipo de sonda, circuito e solução de referência. Tratar os valores como **medição estimada**, com calibração periódica.
+
+## Calibração TDS
+
+Campos publicados:
+
+- `CAL` — estado da calibração
+- `CAL_GAIN` — ganho aplicado
+- `TDS_RAW_PPM` — base sem ganho
+
+Estados de `CAL`:
+
+- `0`: idle
+- `1`: aguardando referência
+- `2`: aplicado e não salvo
+- `3`: salvo em EEPROM
+
+Comandos serial:
+
+- `CAL=ON`
+- `CAL=APPLY:<ppm>`
+- `CAL=SAVE`
+- `CAL=RESET`
+- `CAL=OFF`
+- `CAL?`
+
+Referência comum de condutividade:
+
+- solução: **1413 µS/cm**
+- escala 500: $ppm = EC \times 0.5$
+- resultado: $1413 \times 0.5 = 706.5\,ppm$
+
+Aplicação típica: `CAL=APPLY:706.5` seguido de `CAL=SAVE`.
+
+## Modos de diagnóstico de leitura
+
+Comandos para avaliar impacto de OLED e sequência de amostragem:
+
+- `MODE=0` normal
+- `MODE=1` pausa OLED durante leitura
+- `MODE=2` OLED desligada durante leitura
+- `MODE=3` OLED sempre desligada
+- `MODE=4` leitura alternada por sensor
+- consulta: `MODE?` ou `STATUS`
 
 ## Bibliotecas Arduino
 
@@ -111,31 +116,43 @@ DEVICE=iara-uno-0001;SEQ=1;TS_MS=1034;TEMP_C=25.19;TDS_PPM=131;TDS_ADC=287;TDS_V
 - `Adafruit GFX Library`
 - `Adafruit SSD1306`
 
-## Pronto
+## Operação rápida
 
-Sem servidor. Sem painel. Só Arduino enviando dados por USB.
+1. Gravar `firmware/iara_arduino_uno_v1.ino` no Arduino Uno.
+2. Abrir monitor serial em `115200`.
+3. Validar chegada de telemetria.
+4. Opcional: executar scripts em `tools/` para diagnóstico/calibração.
+5. Subir backend em `_painel_iot_server` para dashboard local e integração web.
 
-## Página pública do projeto
+## Dashboard público (GitHub Pages)
 
-A pasta `docs/` contém uma página pronta para GitHub Pages com:
+`docs/index.html` fornece:
 
-- leitura em tempo real
-- seleção do endpoint da API
-- histórico cronológico dos envios do iara
-- cards com todas as variáveis detectadas automaticamente
+- visualização em tempo real
+- histórico cronológico
+- detecção automática de variáveis
+- seleção de endpoint da API
 
-Para publicar no GitHub Pages:
+Para publicar:
 
-1. Ative Pages apontando para a pasta `docs/`
-2. Abra `docs/index.html`
-3. Informe a URL HTTPS da API do painel no campo "API base"
+1. Ativar GitHub Pages apontando para `main/docs`.
+2. Abrir a página publicada.
+3. Configurar a URL da API (preferencialmente HTTPS).
 
-Exemplo de uso local:
+## Boas práticas de medição
 
-- `http://127.0.0.1:8000`
+- Aguarde estabilização térmica da amostra antes de registrar.
+- Evite encostar a sonda nas paredes do recipiente.
+- Faça agitação leve e padronizada da amostra.
+- Registre temperatura junto com TDS para comparação entre coletas.
+- Recalibre periodicamente com solução padrão conhecida.
 
-Exemplo para página publicada:
+## Referências técnicas
 
-- `https://seu-servidor.com`
-
-Se a página estiver no GitHub Pages, a API também precisa estar acessível por HTTPS para o navegador permitir a leitura em tempo real.
+- Arduino Uno Rev3: https://docs.arduino.cc/hardware/uno-rev3
+- ATmega328P (microcontrolador do Uno): https://www.microchip.com/en-us/product/ATmega328P
+- DS18B20 (Maxim/Analog): https://www.analog.com/en/products/ds18b20.html
+- Biblioteca DallasTemperature: https://github.com/milesburton/Arduino-Temperature-Control-Library
+- Biblioteca OneWire (Paul Stoffregen): https://github.com/PaulStoffregen/OneWire
+- Adafruit SSD1306: https://github.com/adafruit/Adafruit_SSD1306
+- Adafruit GFX: https://github.com/adafruit/Adafruit-GFX-Library
