@@ -6,6 +6,15 @@ Este diretório contém um modelo paramétrico em OpenSCAD para a caixa do siste
 
 - `caixa_iara_v1.scad`
 
+## Arquivos prontos para impressão
+
+Já renderizados neste projeto:
+
+- `cad/stl/caixa_iara_v1_base.stl`
+- `cad/stl/caixa_iara_v1_tampa.stl`
+
+Esses arquivos podem ser importados direto no slicer da sua impressora.
+
 ## Componentes previstos
 
 - Arduino Uno
@@ -50,6 +59,43 @@ No OpenSCAD:
   - PLA para protótipo rápido
   - PETG para uso em ambiente úmido/externo
 - Suportes: normalmente não necessários
+
+## Perfil sugerido — Creality Hi + PETG Premium
+
+Configuração inicial segura para começar (ajuste fino depois do primeiro teste):
+
+- Bico: `0.4 mm`
+- Altura de camada: `0.20 mm`
+- Largura de linha: `0.42 mm`
+- Paredes: `3`
+- Top/Bottom: `5` camadas
+- Infill: `25%` (Gyroid ou Grid)
+- Temperatura do bico:
+   - 1ª camada: `245 °C`
+   - demais: `240 °C`
+- Mesa:
+   - 1ª camada: `80 °C`
+   - demais: `75 °C`
+- Ventoinha:
+   - 1ª camada: `0%`
+   - demais: `20–35%`
+- Velocidade:
+   - perímetro externo: `35 mm/s`
+   - perímetro interno: `55 mm/s`
+   - preenchimento: `70 mm/s`
+- Retração (direct drive):
+   - distância: `0.8 mm`
+   - velocidade: `35 mm/s`
+- Brim: `6 mm` (recomendado para PETG)
+
+### Orientação das peças no slicer
+
+- `caixa_iara_v1_base.stl`: imprimir com o fundo plano na mesa.
+- `caixa_iara_v1_tampa.stl`: imprimir com a face externa da tampa voltada para a mesa.
+
+### Material
+
+Para PETG Premium, limpar mesa e aplicar adesão leve (cola bastão/spray apropriado) ajuda a evitar excesso de aderência na remoção.
 
 ## Parafusos recomendados
 
