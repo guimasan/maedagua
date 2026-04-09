@@ -42,6 +42,11 @@ Se quiser mover a janela para alinhar exatamente ao seu módulo, ajuste esses do
 
 As saídas ficam na **lateral direita da base**.
 
+Dimensões aplicadas no modelo:
+
+- TDS (conector): retangular `5 x 7 mm` + folga
+- Temperatura (cabo): circular `4 mm` + folga
+
 Para visualizar facilmente no OpenSCAD, use:
 
 - `part = "base"` ou `part = "assembled"`

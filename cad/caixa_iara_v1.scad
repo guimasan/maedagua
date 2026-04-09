@@ -101,13 +101,22 @@ echo("Ajuste saída display: oled_margin_top / oled_offset_x");
 // Saídas de cabo
 // =====================
 // Lado direito da base
-cable_tds_d = 6.6;
-cable_temp_d = 4.8;
+cable_fit_clearance = 0.4; // folga geral para montagem/impressão
+
+// TDS: conector retangular informado (5 x 7 mm)
+cable_tds_w = 5 + cable_fit_clearance;
+cable_tds_h = 7 + cable_fit_clearance;
+
+// Temperatura: cabo circular de 4 mm
+cable_temp_d = 4 + cable_fit_clearance;
 cable_cut_depth = wall + 2.2; // profundidade para atravessar a parede com folga
 
 // Nota: o eixo do cilindro está no +X após rotate([0,90,0]), então iniciamos em
 // outer_x - cable_cut_depth para garantir corte completo na lateral direita.
-cable_tds_pos = [outer_x - cable_cut_depth, 24, 11.5];
+// Para o TDS retangular usamos a mesma referência de centro em Y/Z
+cable_tds_center_y = 24;
+cable_tds_center_z = 11.5;
+cable_tds_pos = [outer_x - cable_cut_depth, cable_tds_center_y - cable_tds_w / 2, cable_tds_center_z - cable_tds_h / 2];
 cable_temp_pos = [outer_x - cable_cut_depth, 39, 10.5];
 
 // =====================
@@ -181,7 +190,7 @@ module lid_posts_for_screws() {
 module cable_holes() {
     // TDS
     translate(cable_tds_pos)
-        rotate([0, 90, 0]) cylinder(h = cable_cut_depth, d = cable_tds_d);
+        cube([cable_cut_depth, cable_tds_w, cable_tds_h]);
 
     // Temperatura
     translate(cable_temp_pos)
@@ -193,7 +202,7 @@ module cable_holes_helper() {
         // Preview only (%): visível no editor, não exporta para STL
         %color([0.2, 0.9, 0.3, 0.45])
             translate(cable_tds_pos)
-                rotate([0, 90, 0]) cylinder(h = cable_cut_depth, d = cable_tds_d);
+                cube([cable_cut_depth, cable_tds_w, cable_tds_h]);
         %color([0.2, 0.9, 0.3, 0.45])
             translate(cable_temp_pos)
                 rotate([0, 90, 0]) cylinder(h = cable_cut_depth, d = cable_temp_d);
