@@ -15,6 +15,20 @@ Este diretório contém um modelo paramétrico em OpenSCAD para a caixa do siste
 - Saída lateral para cabo do sensor de temperatura
 - Recortes para USB-B e jack DC do Uno
 
+## Saída do display (OLED) — revisão aplicada
+
+A janela do display fica na **tampa superior** e agora é totalmente ajustável por parâmetros:
+
+- `oled_margin_top` → distância da borda superior da tampa até o centro da janela
+- `oled_offset_x` → deslocamento horizontal da janela
+
+Também foram incluídos:
+
+- postes internos para fixação do OLED (`lid_oled_posts`)
+- canal para passagem do cabo do OLED (`oled_cable_notch_*`)
+
+Se quiser mover a janela para alinhar exatamente ao seu módulo, ajuste esses dois parâmetros e gere apenas a tampa (`part = "lid"`) para teste rápido.
+
 ## Como gerar STL
 
 No OpenSCAD:
@@ -49,7 +63,7 @@ As dimensões do módulo TDS e do OLED podem variar entre lotes/fabricantes. Rec
 1. Medir sua placa real com paquímetro
 2. Ajustar no SCAD os parâmetros:
    - `tds_x`, `tds_y`, `tds_holes`
-   - `oled_*` (janela e furos)
+   - `oled_*` (janela, furos, postes e canal de cabo)
 3. Imprimir um teste rápido da tampa para validar a janela do OLED
 
 ## Observação

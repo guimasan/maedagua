@@ -76,7 +76,25 @@ oled_hole_pitch_y = 23;
 oled_screen_x = 23.5;
 oled_screen_y = 13.5;
 
-oled_center = [outer_x / 2, outer_y - 22];
+// Saída do display (janela) na tampa:
+// - oled_margin_top maior = janela mais para baixo
+// - oled_offset_x positivo = desloca para a direita
+oled_margin_top = 24;
+oled_offset_x = 0;
+oled_center = [outer_x / 2 + oled_offset_x, outer_y - oled_margin_top];
+
+// Ajustes de montagem da placa OLED na tampa
+oled_hole_d = 2.4;
+oled_post_d = 5.2;
+oled_post_h = 4.0;
+oled_post_hole_d = 1.9; // para parafuso M2/M2.2
+
+// Canal para passagem dos fios do OLED (lado superior da tampa)
+oled_cable_notch_w = 8;
+oled_cable_notch_h = 4;
+
+echo("OLED center XY:", oled_center);
+echo("Ajuste saída display: oled_margin_top / oled_offset_x");
 
 // =====================
 // Saídas de cabo
@@ -185,7 +203,22 @@ module lid_oled_window_and_holes() {
     for (sx = [-oled_hole_pitch_x / 2, oled_hole_pitch_x / 2])
         for (sy = [-oled_hole_pitch_y / 2, oled_hole_pitch_y / 2])
             translate([oled_center[0] + sx, oled_center[1] + sy, -0.2])
-                cylinder(h = lid_thickness + 1.2, d = 2.4);
+                cylinder(h = lid_thickness + 1.2, d = oled_hole_d);
+
+    // Canal de saída do cabo do OLED (da região dos pinos para dentro da caixa)
+    translate([oled_center[0] - oled_cable_notch_w / 2, oled_center[1] + oled_hole_pitch_y / 2 - 1, -0.2])
+        cube([oled_cable_notch_w, oled_cable_notch_h, lid_thickness + 0.8]);
+}
+
+module lid_oled_posts() {
+    // Postes de apoio/fixação da placa OLED na face interna da tampa
+    for (sx = [-oled_hole_pitch_x / 2, oled_hole_pitch_x / 2])
+        for (sy = [-oled_hole_pitch_y / 2, oled_hole_pitch_y / 2])
+            translate([oled_center[0] + sx, oled_center[1] + sy, lid_thickness])
+                difference() {
+                    cylinder(h = oled_post_h, d = oled_post_d);
+                    translate([0, 0, -0.1]) cylinder(h = oled_post_h + 0.2, d = oled_post_hole_d);
+                }
 }
 
 module lid_screw_holes() {
@@ -217,10 +250,13 @@ module base_part() {
 }
 
 module lid_part() {
-    difference() {
-        lid_shell();
-        lid_oled_window_and_holes();
-        lid_screw_holes();
+    union() {
+        difference() {
+            lid_shell();
+            lid_oled_window_and_holes();
+            lid_screw_holes();
+        }
+        lid_oled_posts();
     }
 }
 
