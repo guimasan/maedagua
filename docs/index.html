@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>MaeDagua • Iara em tempo real</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07111f;
+        --panel: #0f172a;
+        --panel-2: #111827;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --line: #1f2937;
+        --accent: #38bdf8;
+        --accent-2: #22c55e;
+        --warn: #f59e0b;
+        --bad: #ef4444;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 10% 0%, #172554 0%, transparent 35%),
+          radial-gradient(circle at 90% 0%, #0f766e 0%, transparent 28%),
+          linear-gradient(180deg, #07111f 0%, #0b1220 100%);
+      }
+
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      .wrap { max-width: 1440px; margin: 0 auto; padding: 20px 16px 40px; }
+      
+      .hero {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.95) 100%);
+        border: 1px solid rgba(56, 189, 248, 0.15);
+        border-radius: 28px;
+        padding: 32px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+      }
+      
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.8fr 1fr;
+        gap: 32px;
+        align-items: start;
+      }
+      
+      .title { 
+        font-size: clamp(32px, 5vw, 52px); 
+        line-height: 1.1; 
+        margin: 0 0 12px;
+        background: linear-gradient(135deg, #e5e7eb 0%, #dbeafe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .lead { 
+        margin: 0; 
+        color: var(--muted); 
+        font-size: 15px; 
+        line-height: 1.7;
+      }
+      
+      .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 14px; border-radius: 999px;
+        background: rgba(59, 130, 246, 0.12);
+        border: 1px solid rgba(59,130,246,0.3);
+        color: #bfdbfe; 
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .pill.ok { background: rgba(34, 197, 94, 0.12); border-color: rgba(34,197,94,0.3); color: #bbf7d0; }
+      .pill.warn { background: rgba(245, 158, 11, 0.12); border-color: rgba(245,158,11,0.3); color: #fde68a; }
+      .pill.bad { background: rgba(239, 68, 68, 0.12); border-color: rgba(239,68,68,0.3); color: #fecaca; }
+
+      .config {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(56, 189, 248, 0.15);
+        border-radius: 20px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+      }
+      
+      .config h2, .section h2 { 
+        margin: 0 0 14px; 
+        font-size: 17px;
+        font-weight: 700;
+      }
+      
+      .config p { 
+        margin: 0 0 16px; 
+        color: var(--muted); 
+        font-size: 13px; 
+        line-height: 1.6;
+      }
+      
+      .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      .row + .row { margin-top: 12px; }
+      .label { font-size: 12px; color: var(--muted); font-weight: 600; }
+      
+      input, select, button {
+        border-radius: 12px;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        background: rgba(15, 23, 42, 0.8);
+        color: var(--text);
+        padding: 11px 14px;
+        font: inherit;
+        transition: all 0.2s ease;
+      }
+      
+      input:focus, select:focus { 
+        outline: none; 
+        border-color: rgba(56, 189, 248, 0.6);
+        background: rgba(15, 23, 42, 0.95);
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+      }
+      
+      input[type="text"], input[type="number"], select { min-width: 200px; }
+      
+      button {
+        background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 11px 18px;
+        border: 1px solid rgba(37, 99, 235, 0.3);
+        transition: all 0.15s ease;
+      }
+      
+      button:hover { 
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+      }
+      
+      button:active { transform: translateY(0px); }
+      button.alt { background: rgba(31, 41, 55, 0.8); border-color: rgba(255,255,255,0.1); }
+      button.alt:hover { background: rgba(31, 41, 55, 0.95); }
+      button.ok { background: linear-gradient(180deg, #16a34a 0%, #15803d 100%); border-color: rgba(34, 197, 94, 0.3); }
+      button.ok:hover { box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2); }
+      button.warn { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-color: rgba(245, 158, 11, 0.3); }
+      button.bad { background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%); border-color: rgba(220, 38, 38, 0.3); }
+
+      .status-line { 
+        display: flex; 
+        gap: 14px; 
+        align-items: center; 
+        margin-top: 18px; 
+        flex-wrap: wrap;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+      }
+      
+      .dot { 
+        width: 12px; 
+        height: 12px; 
+        border-radius: 50%; 
+        background: var(--bad); 
+        box-shadow: 0 0 0 5px rgba(239,68,68,0.12);
+        animation: pulse 2s infinite;
+      }
+      
+      .dot.ok { 
+        background: var(--accent-2); 
+        box-shadow: 0 0 0 5px rgba(34,197,94,0.12);
+      }
+      
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+      
+      .status-text { 
+        color: var(--muted); 
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .content { display: grid; gap: 20px; margin-top: 24px; }
+      
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+      }
+      
+      .grid.devices { 
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+      }
+      
+      .card {
+        background: linear-gradient(135deg, rgba(17,24,39,0.98), rgba(15,23,42,0.96));
+        border: 1px solid rgba(56,189,248,0.12);
+        border-radius: 20px;
+        padding: 18px;
+        transition: all 0.2s ease;
+      }
+      
+      .card:hover:not(.clickable) { border-color: rgba(56,189,248,0.2); }
+      .card.clickable { 
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      .card.clickable:hover { 
+        border-color: rgba(56,189,248,0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(56,189,248,0.1);
+      }
+      
+      .card.active { 
+        border-color: rgba(56,189,248,0.6);
+        box-shadow: 0 0 0 1px rgba(56,189,248,0.3) inset, 0 8px 20px rgba(56,189,248,0.15);
+        background: linear-gradient(135deg, rgba(30,58,138,0.6), rgba(15,23,42,0.98));
+      }
+      
+      .k { 
+        color: var(--muted); 
+        font-size: 12px; 
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      
+      .v { 
+        font-size: 24px; 
+        font-weight: 700; 
+        line-height: 1.1; 
+        word-break: break-word;
+        color: #e5e7eb;
+      }
+      
+      .v.small { 
+        font-size: 14px; 
+        font-weight: 600; 
+        color: #dbeafe;
+      }
+      
+      .subtle { 
+        color: var(--muted); 
+        font-size: 12px;
+        margin-top: 6px;
+      }
+
+      .section {
+        background: rgba(2, 6, 23, 0.3);
+        border: 1px solid rgba(56,189,248,0.12);
+        border-radius: 24px;
+        padding: 24px;
+        backdrop-filter: blur(4px);
+      }
+      
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      
+      .section-head p { 
+        margin: 4px 0 0; 
+        color: var(--muted); 
+        font-size: 13px;
+      }
+      
+      .chart-wrap { display: grid; gap: 16px; }
+      
+      canvas {
+        width: 100%;
+        height: 320px;
+        border-radius: 18px;
+        background: rgba(7, 16, 28, 0.8);
+        border: 1px solid rgba(56,189,248,0.15);
+      }
+      
+      .chart-meta { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 16px; 
+        color: var(--muted); 
+        font-size: 13px;
+      }
+      
+      .split {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 20px;
+      }
+      
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 12px;
+        line-height: 1.6;
+        padding: 14px;
+        background: rgba(7, 16, 28, 0.8);
+        border-radius: 12px;
+        border: 1px solid rgba(56,189,248,0.1);
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      
+      .timeline {
+        display: grid;
+        gap: 10px;
+        max-height: 600px;
+        overflow-y: auto;
+        padding-right: 6px;
+      }
+      
+      .timeline-item {
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255,255,255,0.06);
+        transition: all 0.15s ease;
+      }
+      
+      .timeline-item:hover {
+        border-color: rgba(56,189,248,0.2);
+        background: rgba(15, 23, 42, 0.9);
+      }
+      
+      .timeline-top { 
+        display: flex; 
+        justify-content: space-between; 
+        gap: 10px; 
+        align-items: center;
+      }
+      
+      .timeline-top strong { 
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+      
+      .timeline-meta { 
+        color: var(--muted); 
+        font-size: 12px; 
+        margin-top: 6px;
+      }
+      
+      .vars-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+      
+      .footer { 
+        margin-top: 32px; 
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        color: var(--muted); 
+        font-size: 12px; 
+        line-height: 1.7;
+      }
+      
+      /* Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: rgba(56, 189, 248, 0.3);
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(56, 189, 248, 0.5);
+      }
+
+      @media (max-width: 1024px) {
+        .hero { padding: 24px; }
+        .hero-grid { 
+          grid-template-columns: 1fr; 
+          gap: 24px;
+        }
+        .split { 
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .wrap { padding: 16px 12px 32px; }
+        .hero { padding: 20px; }
+        .config { padding: 16px; }
+        .section { padding: 16px; }
+        .title { font-size: 28px; }
+        input[type="text"], input[type="number"], select { 
+          min-width: 0; 
+          flex: 1 1 160px; 
+        }
+        .grid.devices { 
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <h1 class="title">MaeDagua • dados do Iara em tempo real</h1>
+            <p class="lead">
+              Página pública do REA para escolas e universidades: mostra as variáveis enviadas pelo iara,
+              acompanha o fluxo ao vivo e guarda o histórico cronológico dos envios para análise, aula e ciência cidadã.
+            </p>
+            <div class="pill-row">
+              <span class="pill ok">Tempo real</span>
+              <span class="pill">Histórico cronológico</span>
+              <span class="pill">Variáveis automáticas</span>
+              <span class="pill">GitHub Pages friendly</span>
+            </div>
+            <div class="status-line">
+              <span id="dot" class="dot"></span>
+              <span id="connText" class="status-text">Aguardando configuração da API</span>
+              <span class="status-text" id="deviceCountText">0 dispositivos</span>
+            </div>
+          </div>
+          <aside class="config">
+            <h2>Conectar à API</h2>
+            <p>
+              Informe a URL base da API do painel. Em GitHub Pages, ela precisa estar acessível por HTTPS.
+              Exemplo: <code>https://seu-servidor.com</code> ou <code>http://127.0.0.1:8000</code> no uso local.
+            </p>
+            <div class="row">
+              <input id="apiBaseInput" type="text" placeholder="https://seu-servidor.com" />
+              <button id="saveApiBtn">Salvar</button>
+              <button id="connectBtn" class="ok">Conectar</button>
+            </div>
+            <div class="row">
+              <label class="label" for="deviceSelect">Dispositivo</label>
+              <select id="deviceSelect"></select>
+              <button id="refreshBtn" class="alt">Atualizar</button>
+            </div>
+            <div class="row">
+              <span class="subtle" id="apiHint">Sem API configurada.</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="content">
+        <section class="section">
+          <div class="section-head">
+            <div>
+              <h2>Resumo do dispositivo selecionado</h2>
+              <p id="selectedMeta">Selecione um iara para ver os dados.</p>
+            </div>
+            <div class="subtle" id="lastUpdateText">Última atualização: --</div>
+          </div>
+          <div class="grid devices" id="devicesGrid"></div>
+        </section>
+
+        <section class="section chart-wrap">
+          <div class="section-head">
+            <div>
+              <h2>Histórico cronológico</h2>
+              <p>Gráfico temporal do TDS do dispositivo selecionado com base nos envios salvos no servidor.</p>
+            </div>
+            <div class="chart-meta">
+              <span id="historyMeta">0 pontos</span>
+              <span id="rangeMeta">min -- · max --</span>
+              <span id="sampleMeta">sem amostras</span>
+            </div>
+          </div>
+          <canvas id="chart" width="1200" height="280"></canvas>
+          <div class="subtle">A linha segue a ordem temporal dos logs recebidos. Cada ponto é um envio do iara para o painel.</div>
+        </section>
+
+        <section class="split">
+          <section class="section">
+            <div class="section-head">
+              <div>
+                <h2>Variáveis detectadas automaticamente</h2>
+                <p>Todas as chaves recebidas no último pacote são mostradas aqui, sem precisar atualizar o front-end.</p>
+              </div>
+            </div>
+            <div class="vars-grid" id="varsGrid"></div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <div>
+                <h2>Linha do tempo</h2>
+                <p>Últimos envios do dispositivo, em ordem cronológica.</p>
+              </div>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </section>
+        </section>
+
+        <section class="split">
+          <section class="section">
+            <div class="section-head">
+              <div>
+                <h2>Último JSON recebido</h2>
+                <p>Útil para depuração, exportação e ciência aberta.</p>
+              </div>
+            </div>
+            <pre id="rawJson">{}</pre>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <div>
+                <h2>Logs do servidor</h2>
+                <p>Eventos recentes para acompanhar telemetria, comandos e ACKs.</p>
+              </div>
+            </div>
+            <pre id="serverLogs">[]</pre>
+          </section>
+        </section>
+      </section>
+
+      <div class="footer">
+        <strong>Como publicar:</strong> configure GitHub Pages para servir a pasta <code>docs/</code> deste repositório.
+        Para dados ao vivo, a API do painel precisa estar online e com HTTPS se a página estiver no GitHub Pages.
+      </div>
+    </main>
+
+    <script>
+      const HIDDEN_KEYS = new Set([
+        "device", "device_public_id", "chip", "counter", "value", "temp_c", "tds_ppm", "rssi", "heap",
+        "uptime_ms", "telemetry_interval_ms", "hub", "ts", "vars", "event", "privacy", "integration",
+        "modules", "model", "project", "protocol", "status", "last_seen_s"
+      ]);
+
+      const state = {
+        apiBase: "",
+        socket: null,
+        devices: new Map(),
+        history: new Map(),
+        selected: "",
+        lastSeq: new Map(),
+        lastSampleAt: new Map(),
+      };
+
+      const el = (id) => document.getElementById(id);
+      const apiBaseInput = el("apiBaseInput");
+      const saveApiBtn = el("saveApiBtn");
+      const connectBtn = el("connectBtn");
+      const refreshBtn = el("refreshBtn");
+      const deviceSelect = el("deviceSelect");
+      const devicesGrid = el("devicesGrid");
+      const varsGrid = el("varsGrid");
+      const timelineEl = el("timeline");
+      const rawJson = el("rawJson");
+      const serverLogs = el("serverLogs");
+      const chart = el("chart");
+      const ctx = chart.getContext("2d");
+      const dot = el("dot");
+      const connText = el("connText");
+      const apiHint = el("apiHint");
+      const selectedMeta = el("selectedMeta");
+      const lastUpdateText = el("lastUpdateText");
+      const deviceCountText = el("deviceCountText");
+      const historyMeta = el("historyMeta");
+      const rangeMeta = el("rangeMeta");
+      const sampleMeta = el("sampleMeta");
+
+      const MAX_HISTORY = 240;
+      const MAX_LOGS = 80;
+
+      const defaultApiBase = (() => {
+        const params = new URLSearchParams(location.search);
+        const fromQuery = params.get("api") || params.get("apiBase") || "";
+        const fromStorage = localStorage.getItem("maedagua_api_base") || "";
+        if (fromQuery) return fromQuery;
+        if (fromStorage) return fromStorage;
+        if (location.protocol === "file:") return "http://127.0.0.1:8000";
+        if (location.hostname.endsWith("github.io")) return "";
+        return location.origin;
+      })();
+
+      function normalizeBase(value) {
+        return String(value || "").trim().replace(/\/+$/, "");
+      }
+
+      function setStatus(ok, text) {
+        dot.classList.toggle("ok", !!ok);
+        connText.textContent = text;
+      }
+
+      function joinApi(path) {
+        const base = normalizeBase(state.apiBase);
+        return `${base}${path}`;
+      }
+
+      function wsUrl() {
+        const base = normalizeBase(state.apiBase);
+        if (!base) return "";
+        try {
+          const url = new URL(base);
+          const protocol = url.protocol === "https:" ? "wss:" : "ws:";
+          return `${protocol}//${url.host}/ws/view`;
+        } catch {
+          return "";
+        }
+      }
+
+      function formatValue(value) {
+        if (value === null || value === undefined) return "-";
+        if (typeof value === "number" && Number.isFinite(value)) return Number.isInteger(value) ? String(value) : value.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+        if (Array.isArray(value)) return value.join(", ");
+        if (typeof value === "object") return JSON.stringify(value);
+        return String(value);
+      }
+
+      function formatTemp(value) {
+        const n = Number(value);
+        return Number.isFinite(n) ? `${n.toFixed(1)} °C` : "--.- °C";
+      }
+
+      function formatDate(ts) {
+        if (!ts) return "--";
+        const ms = ts > 1e12 ? ts : ts * 1000;
+        return new Date(ms).toLocaleString();
+      }
+
+      function isTelemetryLog(item) {
+        return item && item.event === "telemetry" && item.payload && typeof item.payload === "object";
+      }
+
+      function telemetryPointFromPayload(payload, fallbackTs) {
+        const ts = Number(payload.ts_ms ?? fallbackTs ?? Date.now());
+        return {
+          ts,
+          temp_c: payload.temp_c ?? null,
+          tds_ppm: Number(payload.tds_ppm ?? payload.value ?? 0),
+          cal: payload.cal ?? payload.vars?.cal ?? null,
+          cal_gain: payload.cal_gain ?? payload.vars?.cal_gain ?? null,
+          seq: payload.seq ?? payload.counter ?? null,
+          raw: payload,
+        };
+      }
+
+      function telemetryPointFromLog(log) {
+        if (!isTelemetryLog(log)) return null;
+        return telemetryPointFromPayload(log.payload, log.ts);
+      }
+
+      function getHistory(device) {
+        if (!state.history.has(device)) state.history.set(device, []);
+        return state.history.get(device);
+      }
+
+      function dedupePush(device, point) {
+        const history = getHistory(device);
+        const key = `${point.seq ?? ""}:${point.ts}`;
+        const last = state.lastSeq.get(device);
+        if (last === key) return false;
+        state.lastSeq.set(device, key);
+        history.push(point);
+        if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
+        state.lastSampleAt.set(device, Date.now());
+        return true;
+      }
+
+      function updateDeviceFromTelemetry(device, payload, appendHistory = true) {
+        const normalized = String(device || payload.device || "unknown").toLowerCase();
+        const current = state.devices.get(normalized) || {};
+        const merged = { ...current, ...payload, device: normalized };
+        state.devices.set(normalized, merged);
+
+        if (appendHistory) {
+          const point = telemetryPointFromPayload(merged, Date.now());
+          dedupePush(normalized, point);
+        }
+
+        if (!state.selected) state.selected = normalized;
+        if (!state.history.has(normalized)) state.history.set(normalized, []);
+      }
+
+      function updateFromLog(device, log) {
+        const point = telemetryPointFromLog(log);
+        if (!point) return;
+        const normalized = String(device || point.raw?.device || "unknown").toLowerCase();
+        updateDeviceFromTelemetry(normalized, point.raw, false);
+        const history = getHistory(normalized);
+        const key = `${point.seq ?? ""}:${point.ts}`;
+        const existing = history.some((item) => `${item.seq ?? ""}:${item.ts}` === key);
+        if (!existing) {
+          history.push(point);
+          history.sort((a, b) => Number(a.ts) - Number(b.ts));
+          if (history.length > MAX_HISTORY) history.splice(0, history.length - MAX_HISTORY);
+        }
+      }
+
+      function deviceReservedKeys() {
+        return new Set([...HIDDEN_KEYS, "seq", "ts_ms", "temp_ok", "temp_sample", "tds_sample", "tds_ok", "tds_adc", "tds_raw_ppm", "tds_v", "mode", "disp", "cal", "cal_gain", "fw"]);
+      }
+
+      function renderDevicesGrid() {
+        const entries = [...state.devices.values()].sort((a, b) => String(a.device).localeCompare(String(b.device)));
+        deviceCountText.textContent = `${entries.length} dispositivo${entries.length === 1 ? "" : "s"}`;
+
+        if (!entries.length) {
+          devicesGrid.innerHTML = `<div class="subtle">Nenhum dispositivo carregado ainda.</div>`;
+          deviceSelect.innerHTML = `<option value="">Sem dispositivos</option>`;
+          return;
+        }
+
+        devicesGrid.innerHTML = entries.map((d) => {
+          const device = d.device || "unknown";
+          const active = device === state.selected ? "active" : "";
+          return `
+            <article class="card clickable ${active}" data-device="${device}">
+              <div class="k">${device}</div>
+              <div class="v">${formatTemp(d.temp_c)}</div>
+              <div class="subtle">TDS: ${Number(d.tds_ppm ?? d.value ?? 0).toFixed(1)} ppm</div>
+              <div class="subtle">CAL: ${formatValue(d.cal ?? d.vars?.cal)}</div>
+              <div class="subtle">Gain: ${formatValue(d.cal_gain ?? d.vars?.cal_gain)}</div>
+              <div class="subtle">Último sinal: ${formatDate(d.ts)}</div>
+            </article>
+          `;
+        }).join("");
+
+        deviceSelect.innerHTML = entries.map((d) => {
+          const device = d.device || "unknown";
+          const selected = device === state.selected ? "selected" : "";
+          return `<option value="${device}" ${selected}>${device}</option>`;
+        }).join("");
+
+        document.querySelectorAll(".card.clickable").forEach((card) => {
+          card.addEventListener("click", () => {
+            setSelected(card.dataset.device || "");
+          });
+        });
+      }
+
+      function drawChart() {
+        const device = state.selected;
+        const history = device ? getHistory(device) : [];
+        const points = history.filter((p) => Number.isFinite(Number(p.tds_ppm))).map((p) => Number(p.tds_ppm));
+
+        const w = chart.width;
+        const h = chart.height;
+        const pad = 24;
+        ctx.clearRect(0, 0, w, h);
+
+        // grid
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.18)";
+        for (let i = 0; i <= 4; i++) {
+          const y = pad + ((h - pad * 2) * i) / 4;
+          ctx.beginPath();
+          ctx.moveTo(pad, y);
+          ctx.lineTo(w - pad, y);
+          ctx.stroke();
+        }
+
+        if (!points.length) {
+          rangeMeta.textContent = "min -- · max --";
+          historyMeta.textContent = "0 pontos";
+          sampleMeta.textContent = "sem amostras";
+          return;
+        }
+
+        let min = Math.min(...points);
+        let max = Math.max(...points);
+        if (min === max) {
+          min -= 1;
+          max += 1;
+        }
+
+        const plotW = w - pad * 2;
+        const plotH = h - pad * 2;
+        const step = points.length > 1 ? plotW / (points.length - 1) : plotW;
+
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        points.forEach((v, i) => {
+          const x = pad + i * step;
+          const y = pad + (1 - (v - min) / (max - min)) * plotH;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(34, 197, 94, 0.9)";
+        points.forEach((v, i) => {
+          const x = pad + i * step;
+          const y = pad + (1 - (v - min) / (max - min)) * plotH;
+          ctx.beginPath();
+          ctx.arc(x, y, 2.8, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        rangeMeta.textContent = `min ${min.toFixed(2)} · max ${max.toFixed(2)}`;
+        historyMeta.textContent = `${points.length} pontos`;
+        const first = history[0];
+        const last = history[history.length - 1];
+        sampleMeta.textContent = `${formatDate(first?.ts)} → ${formatDate(last?.ts)}`;
+      }
+
+      function renderVars(device) {
+        const reserved = deviceReservedKeys();
+        const combined = { ...(device.vars || {}) };
+        Object.entries(device).forEach(([k, v]) => {
+          if (!reserved.has(k) && !(k in combined)) combined[k] = v;
+        });
+
+        const entries = Object.entries(combined)
+          .filter(([k]) => !reserved.has(k))
+          .sort(([a], [b]) => a.localeCompare(b));
+
+        if (!entries.length) {
+          varsGrid.innerHTML = `<div class="subtle">Nenhuma variável extra detectada.</div>`;
+          return;
+        }
+
+        varsGrid.innerHTML = entries.map(([k, v]) => `
+          <article class="card">
+            <div class="k">${k}</div>
+            <div class="v small">${formatValue(v)}</div>
+          </article>
+        `).join("");
+      }
+
+      function renderTimeline() {
+        const device = state.selected;
+        const history = device ? [...getHistory(device)] : [];
+        if (!history.length) {
+          timelineEl.innerHTML = `<div class="subtle">Sem histórico ainda. Quando o iara enviar dados, eles aparecerão aqui em ordem cronológica.</div>`;
+          return;
+        }
+
+        timelineEl.innerHTML = history.slice(-60).map((p) => `
+          <article class="timeline-item">
+            <div class="timeline-top">
+              <strong>${formatDate(p.ts)}</strong>
+              <span class="subtle">seq ${p.seq ?? "-"}</span>
+            </div>
+            <div class="timeline-meta">TDS ${Number(p.tds_ppm ?? 0).toFixed(1)} ppm · Temp ${formatTemp(p.temp_c)} · CAL ${formatValue(p.cal)} · Gain ${formatValue(p.cal_gain)}</div>
+          </article>
+        `).join("");
+      }
+
+      function renderRawAndLogs() {
+        const device = state.selected ? state.devices.get(state.selected) : null;
+        rawJson.textContent = JSON.stringify(device || {}, null, 2);
+      }
+
+      function renderServerLogs(logs) {
+        serverLogs.textContent = JSON.stringify(logs || [], null, 2);
+      }
+
+      function renderSelected() {
+        const device = state.selected ? state.devices.get(state.selected) : null;
+        if (!device) {
+          selectedMeta.textContent = "Selecione um iara para ver os dados.";
+          lastUpdateText.textContent = "Última atualização: --";
+          varsGrid.innerHTML = `<div class="subtle">Aguardando dados.</div>`;
+          timelineEl.innerHTML = `<div class="subtle">Sem dados para mostrar.</div>`;
+          rawJson.textContent = "{}";
+          drawChart();
+          return;
+        }
+
+        selectedMeta.textContent = `${device.device_public_id || device.device || "-"} • ${device.model || device.chip || "-"} • FW ${device.fw_version || device.fw || "-"}`;
+        lastUpdateText.textContent = `Última atualização: ${formatDate(device.ts)}`;
+        renderVars(device);
+        renderTimeline();
+        renderRawAndLogs();
+        drawChart();
+      }
+
+      function setSelected(device) {
+        if (!device) return;
+        state.selected = device;
+        deviceSelect.value = device;
+        renderDevicesGrid();
+        renderSelected();
+      }
+
+      async function fetchJson(path) {
+        const response = await fetch(joinApi(path), { cache: "no-store" });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload?.error || `HTTP ${response.status}`);
+        return payload;
+      }
+
+      async function loadDevices() {
+        if (!state.apiBase) return;
+        const payload = await fetchJson("/api/devices");
+        const list = payload.devices || [];
+        list.forEach((device) => updateDeviceFromTelemetry(device.device, device, false));
+        if (!state.selected && list[0]) state.selected = list[0].device;
+        renderDevicesGrid();
+        renderSelected();
+      }
+
+      async function loadStateAndLogs(device) {
+        if (!state.apiBase || !device) return;
+        const [statePayload, logsPayload] = await Promise.all([
+          fetchJson(`/api/device/${encodeURIComponent(device)}/state`),
+          fetchJson(`/api/device/${encodeURIComponent(device)}/logs?limit=500`),
+        ]);
+
+        if (statePayload?.device) updateDeviceFromTelemetry(device, statePayload.device, false);
+        if (Array.isArray(logsPayload?.logs)) {
+          state.history.set(device, []);
+          logsPayload.logs.forEach((log) => updateFromLog(device, log));
+        }
+
+        const logs = logsPayload?.logs || [];
+        const telemetryLogs = logs.filter((item) => item.event === "telemetry");
+        renderServerLogs(logs.slice(-MAX_LOGS));
+        if (!state.selected) state.selected = device;
+        if (telemetryLogs.length && !state.history.get(device)?.length) {
+          telemetryLogs.forEach((log) => updateFromLog(device, log));
+        }
+        renderDevicesGrid();
+        renderSelected();
+      }
+
+      async function refreshActiveDevice() {
+        if (!state.apiBase || !state.selected) return;
+        await loadStateAndLogs(state.selected);
+      }
+
+      function disconnectSocket() {
+        if (state.socket) {
+          try { state.socket.close(); } catch {}
+          state.socket = null;
+        }
+      }
+
+      function connectSocket() {
+        disconnectSocket();
+        const url = wsUrl();
+        if (!url) {
+          setStatus(false, "API não configurada para tempo real");
+          return;
+        }
+
+        try {
+          const socket = new WebSocket(url);
+          state.socket = socket;
+
+          socket.onopen = () => setStatus(true, `Conectado em ${normalizeBase(state.apiBase)}`);
+          socket.onerror = () => setStatus(false, "Falha no WebSocket");
+          socket.onclose = () => setStatus(false, "Desconectado");
+          socket.onmessage = (ev) => {
+            try {
+              const data = JSON.parse(ev.data);
+              const device = String(data.device || data.device_public_id || "unknown").toLowerCase();
+              updateDeviceFromTelemetry(device, data, true);
+              if (state.selected === device) {
+                renderDevicesGrid();
+                renderSelected();
+              } else {
+                renderDevicesGrid();
+              }
+            } catch {
+              // silêncio, o painel vive de dados bonitos
+            }
+          };
+        } catch {
+          setStatus(false, "Não foi possível abrir o WebSocket");
+        }
+      }
+
+      async function connectAndLoad() {
+        state.apiBase = normalizeBase(apiBaseInput.value);
+        if (!state.apiBase) {
+          apiHint.textContent = "Informe a URL base da API para carregar os dados ao vivo.";
+          setStatus(false, "API não configurada");
+          return;
+        }
+
+        localStorage.setItem("maedagua_api_base", state.apiBase);
+        apiHint.textContent = `API configurada: ${state.apiBase}`;
+        setStatus(false, "Carregando...");
+        try {
+          await loadDevices();
+          if (state.selected) await loadStateAndLogs(state.selected);
+          connectSocket();
+        } catch (err) {
+          setStatus(false, `Erro ao carregar dados: ${String(err.message || err)}`);
+        }
+      }
+
+      saveApiBtn.addEventListener("click", () => {
+        state.apiBase = normalizeBase(apiBaseInput.value);
+        localStorage.setItem("maedagua_api_base", state.apiBase);
+        apiHint.textContent = state.apiBase ? `API salva: ${state.apiBase}` : "Sem API configurada.";
+      });
+      connectBtn.addEventListener("click", connectAndLoad);
+      refreshBtn.addEventListener("click", refreshActiveDevice);
+      deviceSelect.addEventListener("change", async () => {
+        if (!deviceSelect.value) return;
+        state.selected = deviceSelect.value;
+        renderDevicesGrid();
+        renderSelected();
+        await loadStateAndLogs(state.selected);
+        connectSocket();
+      });
+
+      apiBaseInput.value = defaultApiBase;
+      state.apiBase = normalizeBase(defaultApiBase);
+      apiHint.textContent = state.apiBase ? `API inicial: ${state.apiBase}` : "Sem API inicial. Informe uma URL e clique em Conectar.";
+
+      if (state.apiBase) {
+        connectAndLoad();
+      } else {
+        renderDevicesGrid();
+        renderSelected();
+      }
+
+      window.addEventListener("beforeunload", disconnectSocket);
+      setInterval(() => {
+        if (state.apiBase && state.selected) {
+          loadStateAndLogs(state.selected).catch(() => {});
+        }
+      }, 8000);
+    </script>
+  </body>
+</html>
