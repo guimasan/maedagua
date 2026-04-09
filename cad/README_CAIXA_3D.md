@@ -38,6 +38,17 @@ Também foram incluídos:
 
 Se quiser mover a janela para alinhar exatamente ao seu módulo, ajuste esses dois parâmetros e gere apenas a tampa (`part = "lid"`) para teste rápido.
 
+## Saídas dos cabos dos sensores (TDS e temperatura)
+
+As saídas ficam na **lateral direita da base**.
+
+Para visualizar facilmente no OpenSCAD, use:
+
+- `part = "base"` ou `part = "assembled"`
+- `show_cable_helpers = true`
+
+Com isso, o modelo mostra guias verdes transparentes indicando o caminho dos furos. Essas guias são somente preview e **não entram no STL**.
+
 ## Como gerar STL
 
 No OpenSCAD:

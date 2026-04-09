@@ -8,6 +8,7 @@ $fn = 48;
 // Seleção de peça
 // =====================
 part = "assembled"; // "base", "lid", "assembled"
+show_cable_helpers = true; // true = mostra guias visuais das saídas de cabo
 
 // =====================
 // Dimensões gerais (mm)
@@ -102,9 +103,12 @@ echo("Ajuste saída display: oled_margin_top / oled_offset_x");
 // Lado direito da base
 cable_tds_d = 6.6;
 cable_temp_d = 4.8;
+cable_cut_depth = wall + 2.2; // profundidade para atravessar a parede com folga
 
-cable_tds_pos = [outer_x, 24, 11.5];
-cable_temp_pos = [outer_x, 39, 10.5];
+// Nota: o eixo do cilindro está no +X após rotate([0,90,0]), então iniciamos em
+// outer_x - cable_cut_depth para garantir corte completo na lateral direita.
+cable_tds_pos = [outer_x - cable_cut_depth, 24, 11.5];
+cable_temp_pos = [outer_x - cable_cut_depth, 39, 10.5];
 
 // =====================
 // Parafusos da tampa
@@ -177,11 +181,23 @@ module lid_posts_for_screws() {
 module cable_holes() {
     // TDS
     translate(cable_tds_pos)
-        rotate([0, 90, 0]) cylinder(h = wall + 1.5, d = cable_tds_d);
+        rotate([0, 90, 0]) cylinder(h = cable_cut_depth, d = cable_tds_d);
 
     // Temperatura
     translate(cable_temp_pos)
-        rotate([0, 90, 0]) cylinder(h = wall + 1.5, d = cable_temp_d);
+        rotate([0, 90, 0]) cylinder(h = cable_cut_depth, d = cable_temp_d);
+}
+
+module cable_holes_helper() {
+    if (show_cable_helpers) {
+        // Preview only (%): visível no editor, não exporta para STL
+        %color([0.2, 0.9, 0.3, 0.45])
+            translate(cable_tds_pos)
+                rotate([0, 90, 0]) cylinder(h = cable_cut_depth, d = cable_tds_d);
+        %color([0.2, 0.9, 0.3, 0.45])
+            translate(cable_temp_pos)
+                rotate([0, 90, 0]) cylinder(h = cable_cut_depth, d = cable_temp_d);
+    }
 }
 
 module uno_side_ports() {
@@ -262,6 +278,7 @@ module lid_part() {
 
 if (part == "base") {
     base_part();
+    cable_holes_helper();
 }
 
 if (part == "lid") {
@@ -270,5 +287,6 @@ if (part == "lid") {
 
 if (part == "assembled") {
     color("#1f2937") base_part();
+    cable_holes_helper();
     translate([0, 0, base_h + 0.2]) color("#334155") lid_part();
 }
